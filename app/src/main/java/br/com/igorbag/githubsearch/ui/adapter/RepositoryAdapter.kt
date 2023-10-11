@@ -1,15 +1,19 @@
 package br.com.igorbag.githubsearch.ui.adapter
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import br.com.igorbag.githubsearch.R
 import br.com.igorbag.githubsearch.domain.Repository
+import br.com.igorbag.githubsearch.ui.MainActivity
 
-class RepositoryAdapter(private val repositories: List<Repository>) :
+class RepositoryAdapter(private val repositories: List<Repository>, private val main: MainActivity) :
     RecyclerView.Adapter<RepositoryAdapter.ViewHolder>() {
-
     var carItemLister: (Repository) -> Unit = {}
     var btnShareLister: (Repository) -> Unit = {}
 
@@ -24,7 +28,15 @@ class RepositoryAdapter(private val repositories: List<Repository>) :
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         //@TODO 8 -  Realizar o bind do viewHolder
         //Exemplo de Bind
-        //  holder.preco.text = repositories[position].atributo
+        holder.textView.text = repositories[position].name
+        holder.btnShare.setOnClickListener {
+              Log.d("IMAGEVIEW", "CLICOU NO SHARE")
+            main.shareRepositoryLink(repositories[position].htmlUrl)
+          }
+        holder.cardRepo.setOnClickListener {
+            Log.d("CARDVIEW", "${repositories[position].name} - ${position}")
+            main.openBrowser(repositories[position].htmlUrl)
+        }
 
         // Exemplo de click no item
         //holder.itemView.setOnClickListener {
@@ -39,18 +51,22 @@ class RepositoryAdapter(private val repositories: List<Repository>) :
 
     // Pega a quantidade de repositorios da lista
     //@TODO 9 - realizar a contagem da lista
-    override fun getItemCount(): Int = 0
+    override fun getItemCount(): Int = repositories.size
 
     class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         //@TODO 10 - Implementar o ViewHolder para os repositorios
         //Exemplo:
-        //val atributo: TextView
+        val textView: TextView
+        val btnShare: ImageView
+        val cardRepo: CardView
 
-        //init {
-        //    view.apply {
-        //        atributo = findViewById(R.id.item_view)
-        //    }
-
+        init {
+            view.apply {
+                textView = findViewById(R.id.tv_repositorio)
+                btnShare = findViewById(R.id.iv_share)
+                cardRepo = findViewById(R.id.cv_car)
+            }
+        }
     }
 }
 

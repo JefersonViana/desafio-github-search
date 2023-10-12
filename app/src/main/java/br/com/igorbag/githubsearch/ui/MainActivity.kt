@@ -33,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         showUserName()
         setupRetrofit()
         setupListeners()
-        getAllReposByUserName()
+//        getAllReposByUserName()
     }
 
     // Metodo responsavel por realizar o setup da view e recuperar os Ids do layout
@@ -51,6 +51,7 @@ class MainActivity : AppCompatActivity() {
             val user = nomeUsuario.text.toString()
             saveSharedPred(user)
             nomeUsuario.setText("")
+            getAllReposByUserName()
         }
     }
 
@@ -90,29 +91,27 @@ class MainActivity : AppCompatActivity() {
         githubApi = retrofit.create((GitHubService::class.java))
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        getAllReposByUserName()
-//    }
     //Metodo responsavel por buscar todos os repositorios do usuario fornecido
     private fun getAllReposByUserName() {
         // TODO 6 - realizar a implementacao do callback do retrofit e chamar o metodo setupAdapter se retornar os dados com sucesso
         val user = getSharedPref()
-        githubApi.getAllRepositoriesByUser(user).enqueue(object : Callback<List<Repository>> {
-            override fun onResponse(call: Call<List<Repository>>, response: Response<List<Repository>>) {
-                if(response.isSuccessful) {
-                    response.body()?.let {
-                        setupAdapter(it)
+        if(user != "") {
+            githubApi.getAllRepositoriesByUser(user).enqueue(object : Callback<List<Repository>> {
+                override fun onResponse(call: Call<List<Repository>>, response: Response<List<Repository>>) {
+                    if(response.isSuccessful) {
+                        response.body()?.let {
+                            setupAdapter(it)
+                        }
+                    } else {
+                        Toast.makeText(applicationContext, R.string.response_error, Toast.LENGTH_LONG).show()
                     }
-                } else {
+                }
+
+                override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
                     Toast.makeText(applicationContext, R.string.response_error, Toast.LENGTH_LONG).show()
                 }
-            }
-
-            override fun onFailure(call: Call<List<Repository>>, t: Throwable) {
-                Toast.makeText(applicationContext, R.string.response_error, Toast.LENGTH_LONG).show()
-            }
-        })
+            })
+        }
     }
 
     // Metodo responsavel por realizar a configuracao do adapter

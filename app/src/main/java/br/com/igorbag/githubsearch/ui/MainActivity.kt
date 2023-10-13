@@ -2,10 +2,15 @@ package br.com.igorbag.githubsearch.ui
 
 import android.content.Context
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Button
 import android.widget.EditText
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.RecyclerView
@@ -18,6 +23,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.Executors
 
 class MainActivity : AppCompatActivity() {
 
@@ -25,6 +31,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var btnConfirmar: Button
     private lateinit var listaRepositories: RecyclerView
     private lateinit var githubApi: GitHubService
+    private lateinit var avatar: ImageView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,15 +40,14 @@ class MainActivity : AppCompatActivity() {
         showUserName()
         setupRetrofit()
         setupListeners()
-//        getAllReposByUserName()
     }
-
     // Metodo responsavel por realizar o setup da view e recuperar os Ids do layout
     private fun setupView() {
         //@TODO 1 - Recuperar os Id's da tela para a Activity com o findViewById
         nomeUsuario = findViewById(R.id.et_nome_usuario)
         btnConfirmar = findViewById(R.id.btn_confirmar)
         listaRepositories = findViewById(R.id.rv_lista_repositories)
+        avatar = findViewById(R.id.iv_avatar)
     }
 
     //metodo responsavel por configurar os listeners click da tela
@@ -116,6 +122,23 @@ class MainActivity : AppCompatActivity() {
 
     // Metodo responsavel por realizar a configuracao do adapter
     fun setupAdapter(list: List<Repository>) {
+        val url = list[0].owner.avatarUrl
+        val executor = Executors.newSingleThreadExecutor()
+        val handler = Handler(Looper.getMainLooper())
+        var image: Bitmap? = null
+        executor.execute {
+            try {
+                val `in` = java.net.URL(url).openStream()
+                image = BitmapFactory.decodeStream(`in`)
+                handler.post {
+                    avatar.setImageBitmap(image)
+                }
+            }
+            catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+
         /*
             @TODO 7 - Implementar a configuracao do Adapter , construir o adapter e instancia-lo
             passando a listagem dos repositorios
